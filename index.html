@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#ff5a1f">
+<title>万米挑战赛 · 报名投票</title>
+<style>
+:root{
+  --bg:#f3f4f6; --card:#ffffff; --ink:#16181d; --sub:#5b6472; --muted:#8a93a1;
+  --line:#e8eaee; --brand:#ff5a1f; --brand-soft:#fff1ea;
+  --join:#12a150; --join-soft:#e8f7ee;
+  --pending:#e08c00; --pending-soft:#fff6e5;
+  --skip:#8a93a1; --skip-soft:#f1f2f5;
+  --radius:16px; --shadow:0 1px 2px rgba(16,24,40,.04),0 8px 24px rgba(16,24,40,.06);
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;padding:0}
+body{
+  background:var(--bg); color:var(--ink);
+  font:16px/1.6 -apple-system,BlinkMacSystemFont,"PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+  padding:0 0 56px;
+}
+.wrap{max-width:560px;margin:0 auto;padding:0 16px}
+
+/* ---------- Header ---------- */
+.hero{
+  background:linear-gradient(135deg,#ff7a3d 0%,#ff5a1f 55%,#f43f00 100%);
+  color:#fff;padding:34px 0 74px;margin-bottom:-56px;
+}
+.hero .tag{
+  display:inline-block;font-size:12px;letter-spacing:.12em;font-weight:600;
+  background:rgba(255,255,255,.2);padding:4px 10px;border-radius:999px;margin-bottom:12px;
+}
+.hero h1{margin:0 0 8px;font-size:27px;line-height:1.3;font-weight:800;letter-spacing:-.4px}
+.hero p{margin:0;font-size:14.5px;opacity:.92}
+.hero .meta{margin-top:16px;display:flex;gap:18px;flex-wrap:wrap;font-size:13.5px;opacity:.95}
+.hero .meta b{font-weight:600}
+
+/* ---------- Stats ---------- */
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px}
+.stat{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);padding:16px 12px;text-align:center}
+.stat .num{font-size:26px;font-weight:800;line-height:1.15;letter-spacing:-.5px;font-variant-numeric:tabular-nums}
+.stat .lbl{font-size:12.5px;color:var(--sub);margin-top:3px}
+.stat.a .num{color:var(--brand)} .stat.b .num{color:var(--join)} .stat.c .num{color:var(--pending)}
+
+/* ---------- Card ---------- */
+.card{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);padding:20px;margin-bottom:16px}
+.card h2{margin:0 0 4px;font-size:17px;font-weight:700}
+.card .hint{margin:0 0 16px;font-size:13.5px;color:var(--muted)}
+
+/* ---------- Form ---------- */
+.field{margin-bottom:14px}
+.field label{display:block;font-size:13.5px;font-weight:600;color:var(--sub);margin-bottom:6px}
+.field label .req{color:var(--brand);margin-left:2px}
+input[type=text],select,textarea{
+  width:100%;font:inherit;font-size:16px;color:var(--ink);background:#fbfbfc;
+  border:1.5px solid var(--line);border-radius:11px;padding:11px 13px;outline:none;
+  transition:border-color .15s,background .15s;
+}
+input[type=text]:focus,select:focus,textarea:focus{border-color:var(--brand);background:#fff}
+textarea{resize:vertical;min-height:56px}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+select{appearance:none;background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='8'><path d='M1 1l5 5 5-5' stroke='%238a93a1' stroke-width='1.8' fill='none' stroke-linecap='round'/></svg>");
+  background-repeat:no-repeat;background-position:right 13px center;padding-right:34px}
+
+/* ---------- Choice ---------- */
+.choices{display:grid;gap:10px;margin-bottom:6px}
+.choice{
+  display:flex;align-items:center;gap:12px;cursor:pointer;user-select:none;
+  border:1.5px solid var(--line);border-radius:13px;padding:13px 14px;background:#fbfbfc;
+  transition:all .15s;
+}
+.choice input{position:absolute;opacity:0;pointer-events:none}
+.dot{flex:0 0 22px;height:22px;border-radius:50%;border:2px solid #cfd4dc;position:relative;transition:all .15s}
+.choice .txt{flex:1;min-width:0}
+.choice .t1{font-size:15.5px;font-weight:700}
+.choice .t2{font-size:12.5px;color:var(--muted);margin-top:1px}
+.choice[data-v=join]   .dot{border-color:var(--join)}
+.choice[data-v=pending].dot{border-color:var(--pending)}
+.choice[data-v=skip]   .dot{border-color:var(--skip)}
+.choice:has(input:checked){background:#fff;box-shadow:0 0 0 3px rgba(255,90,31,.1)}
+.choice:has(input:checked){border-color:currentColor}
+.choice[data-v=join]:has(input:checked){border-color:var(--join);background:var(--join-soft);color:var(--join)}
+.choice[data-v=pending]:has(input:checked){border-color:var(--pending);background:var(--pending-soft);color:var(--pending)}
+.choice[data-v=skip]:has(input:checked){border-color:var(--skip);background:var(--skip-soft);color:var(--skip)}
+.choice:has(input:checked) .dot{border-color:currentColor;background:currentColor}
+.choice:has(input:checked) .dot::after{
+  content:"";position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
+  width:8px;height:8px;border-radius:50%;background:#fff;
+}
+
+/* ---------- Notice ---------- */
+.notice{
+  display:none;align-items:flex-start;gap:9px;font-size:13.5px;line-height:1.55;
+  background:var(--brand-soft);color:#a8380c;border-radius:11px;padding:11px 13px;margin-bottom:14px;
+}
+.notice.show{display:flex}
+.notice b{font-weight:700}
+
+/* ---------- Button ---------- */
+.btn{
+  width:100%;font:inherit;font-size:16.5px;font-weight:700;color:#fff;cursor:pointer;
+  background:var(--brand);border:0;border-radius:12px;padding:14px 18px;margin-top:6px;
+  transition:transform .12s,opacity .15s,box-shadow .15s;
+  box-shadow:0 6px 18px rgba(255,90,31,.28);
+}
+.btn:active{transform:scale(.985)}
+.btn:disabled{opacity:.55;cursor:not-allowed;box-shadow:none}
+
+/* ---------- Bars ---------- */
+.bars{display:grid;gap:13px}
+.bar .top{display:flex;justify-content:space-between;align-items:baseline;font-size:14px;margin-bottom:6px}
+.bar .top .n{font-weight:700;font-variant-numeric:tabular-nums}
+.bar .top .n span{font-weight:500;color:var(--muted);font-size:12.5px;margin-left:3px}
+.track{height:10px;border-radius:999px;background:#eef0f3;overflow:hidden}
+.fill{height:100%;border-radius:999px;width:0;transition:width .6s cubic-bezier(.22,1,.36,1)}
+.f-join{background:var(--join)} .f-pending{background:var(--pending)} .f-skip{background:var(--skip)}
+
+/* ---------- Roster ---------- */
+details.roster{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);padding:0;margin-bottom:16px;overflow:hidden}
+details.roster summary{
+  padding:16px 20px;font-size:15.5px;font-weight:700;cursor:pointer;list-style:none;
+  display:flex;justify-content:space-between;align-items:center;
+}
+details.roster summary::-webkit-details-marker{display:none}
+details.roster summary::after{content:"展开";font-size:13px;font-weight:600;color:var(--brand)}
+details.roster[open] summary::after{content:"收起"}
+.roster-body{padding:0 20px 18px}
+.group{margin-bottom:16px}
+.group h3{margin:0 0 8px;font-size:13px;font-weight:700;color:var(--sub);display:flex;align-items:center;gap:7px}
+.group h3 .cnt{font-weight:600;color:var(--muted)}
+.group:last-child{margin-bottom:0}
+.pills{display:flex;flex-wrap:wrap;gap:7px}
+.pill{
+  font-size:13.5px;padding:5px 11px;border-radius:9px;background:var(--skip-soft);color:var(--sub);
+}
+.pill i{font-style:normal;font-weight:600;color:var(--ink)}
+.pill small{color:var(--muted);font-size:11.5px;margin-left:4px}
+.pill.j{background:var(--join-soft);color:#0b7a3c}
+.pill.p{background:var(--pending-soft);color:#a86a00}
+.empty{font-size:13.5px;color:var(--muted)}
+
+footer{text-align:center;font-size:12.5px;color:var(--muted);padding:6px 16px 0}
+footer .live{display:inline-flex;align-items:center;gap:6px}
+footer .live i{width:6px;height:6px;border-radius:50%;background:var(--join);display:inline-block}
+
+/* ---------- Toast ---------- */
+#toast{
+  position:fixed;left:50%;bottom:26px;transform:translate(-50%,20px);z-index:99;
+  background:#16181d;color:#fff;font-size:14.5px;font-weight:600;padding:12px 20px;border-radius:12px;
+  opacity:0;pointer-events:none;transition:all .25s;box-shadow:0 8px 28px rgba(0,0,0,.24);max-width:88vw;text-align:center;
+}
+#toast.show{opacity:1;transform:translate(-50%,0)}
+
+/* ---------- Setup guide ---------- */
+#setup{
+  display:none;background:#fff8e6;border:1.5px solid #f5d68a;color:#7a4d00;
+  border-radius:var(--radius);padding:18px 20px;margin-bottom:16px;font-size:14px;line-height:1.7;
+}
+#setup.show{display:block}
+#setup b{color:#5c3a00}
+#setup code{background:#fff;border:1px solid #f0dfb8;padding:1px 5px;border-radius:5px;font-size:13px}
+@media (max-width:360px){
+  .row{grid-template-columns:1fr}
+  .hero h1{font-size:23px}
+}
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <div class="wrap">
+    <div class="tag">RUNNING EVENT</div>
+    <h1>秋季万米挑战赛<br>报名投票</h1>
+    <p>确认一下大家的参与意向，好提前安排补给、计时和分组。</p>
+    <div class="meta">
+      <span>距离 <b>10 km</b></span>
+      <span>投票截止 <b>10月27日</b></span>
+      <span>可随时 <b>改票</b></span>
+    </div>
+  </div>
+</div>
+
+<div class="wrap">
+
+  <div id="setup">
+    <b>还没接数据库，当前页面无法保存投票。</b><br>
+    用编辑器打开 <code>index.html</code>，把文件最下方 <code>&lt;script&gt;</code> 里的
+    <code>SUPABASE_URL</code> 和 <code>SUPABASE_ANON_KEY</code> 换成你自己的项目地址，再重新发布即可。
+  </div>
+
+  <!-- 汇总数字 -->
+  <div class="stats">
+    <div class="stat a"><div class="num" id="s-total">–</div><div class="lbl">已投票</div></div>
+    <div class="stat b"><div class="num" id="s-join">–</div><div class="lbl">确定参加</div></div>
+    <div class="stat c"><div class="num" id="s-rate">–</div><div class="lbl">参加率</div></div>
+  </div>
+
+  <!-- 投票表单 -->
+  <div class="card">
+    <h2>投出你的一票</h2>
+    <p class="hint">填姓名即可投票；改主意了，用同样的姓名再投一次，以最新一次为准。</p>
+
+    <div class="notice" id="notice"></div>
+
+    <div class="row">
+      <div class="field">
+        <label for="f-name">姓名 / 昵称<span class="req">*</span></label>
+        <input type="text" id="f-name" placeholder="张三" maxlength="20" autocomplete="off">
+      </div>
+      <div class="field">
+        <label for="f-dept">部门 / 分组<span class="req">*</span></label>
+        <select id="f-dept">
+          <option value="">请选择</option>
+          <option>产品部</option>
+          <option>研发部</option>
+          <option>设计部</option>
+          <option>市场部</option>
+          <option>销售部</option>
+          <option>运营部</option>
+          <option>职能部</option>
+          <option>外部跑友</option>
+          <option>其他</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="field">
+      <label>你能参加吗？<span class="req">*</span></label>
+      <div class="choices">
+        <label class="choice" data-v="join">
+          <input type="radio" name="choice" value="join">
+          <span class="dot"></span>
+          <span class="txt"><span class="t1">我参加</span><span class="t2">上场跑完 10 公里</span></span>
+        </label>
+        <label class="choice" data-v="pending">
+          <input type="radio" name="choice" value="pending">
+          <span class="dot"></span>
+          <span class="txt"><span class="t1">再想想</span><span class="t2">还没确定，等临近再看</span></span>
+        </label>
+        <label class="choice" data-v="skip">
+          <input type="radio" name="choice" value="skip">
+          <span class="dot"></span>
+          <span class="txt"><span class="t1">这次不参加</span><span class="t2">有其他安排，下次再约</span></span>
+        </label>
+      </div>
+    </div>
+
+    <div class="field">
+      <label for="f-note">备注（选填）</label>
+      <textarea id="f-note" placeholder="比如配速、想跑的距离、需要接驳车…" maxlength="60"></textarea>
+    </div>
+
+    <button class="btn" id="btn-submit" type="button">提交投票</button>
+  </div>
+
+  <!-- 结果分布 -->
+  <div class="card">
+    <h2>当前结果</h2>
+    <p class="hint" id="updated">数据每 20 秒自动更新</p>
+    <div class="bars">
+      <div class="bar">
+        <div class="top"><span>参加</span><span class="n" id="n-join">0<span>人</span></span></div>
+        <div class="track"><div class="fill f-join" id="p-join"></div></div>
+      </div>
+      <div class="bar">
+        <div class="top"><span>待定</span><span class="n" id="n-pending">0<span>人</span></span></div>
+        <div class="track"><div class="fill f-pending" id="p-pending"></div></div>
+      </div>
+      <div class="bar">
+        <div class="top"><span>不参加</span><span class="n" id="n-skip">0<span>人</span></span></div>
+        <div class="track"><div class="fill f-skip" id="p-skip"></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 名单 -->
+  <details class="roster">
+    <summary>查看投票名单</summary>
+    <div class="roster-body" id="roster"></div>
+  </details>
+
+  <footer>
+    <span class="live"><i></i> 实时统计 · 数据存于 Supabase</span>
+  </footer>
+</div>
+
+<div id="toast"></div>
+
+<script>
+/* =========================================================
+   第 1 步：把下面两行换成你自己的 Supabase 项目信息
+   Supabase 控制台 → Project Settings → API
+   ========================================================= */
+var SUPABASE_URL = 'https://YOUR-PROJECT.supabase.co';
+var SUPABASE_ANON_KEY = 'YOUR-ANON-KEY';
+
+var TABLE = 'votes';
+var LATEST = 'latest_votes';
+var REFRESH_MS = 20000;
+
+var CONFIGURED = SUPABASE_URL.indexOf('YOUR-PROJECT') === -1
+              && SUPABASE_ANON_KEY.indexOf('YOUR-ANON') === -1;
+
+var $ = function(id){ return document.getElementById(id); };
+var esc = function(s){
+  return String(s == null ? '' : s).replace(/[&<>"']/g, function(c){
+    return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];
+  });
+};
+var enc = function(v){ return encodeURIComponent(String(v == null ? '' : v)); };
+
+var HEADERS = {
+  'apikey': SUPABASE_ANON_KEY,
+  'Authorization': 'Bearer ' + SUPABASE_ANON_KEY,
+  'Content-Type': 'application/json'
+};
+
+function api(path, opts){
+  opts = opts || {};
+  return fetch(SUPABASE_URL + '/rest/v1/' + path, {
+    method: opts.method || 'GET',
+    headers: opts.headers || HEADERS,
+    body: opts.body
+  }).then(function(res){
+    if (!res.ok) {
+      return res.text().then(function(t){ throw new Error(res.status + ' ' + t); });
+    }
+    var txt = res.text();
+    return txt.then(function(t){ return t ? JSON.parse(t) : []; });
+  });
+}
+
+var toastTimer;
+function toast(msg){
+  var el = $('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(function(){ el.classList.remove('show'); }, 2600);
+}
+
+/* ---------- 填过票自动回显 ---------- */
+var checkTimer;
+function checkExisting(){
+  var name = $('f-name').value.trim();
+  var dept = $('f-dept').value;
+  var notice = $('notice');
+  if (!name || !dept) { notice.classList.remove('show'); return; }
+
+  api(LATEST + '?select=choice,note,created_at'
+      + '&name=eq.' + enc(name)
+      + '&dept=eq.' + enc(dept)
+      + '&limit=1')
+    .then(function(rows){
+      if (rows && rows.length) {
+        var r = rows[0];
+        var lb = {join:'我参加', pending:'再想想', skip:'这次不参加'}[r.choice] || r.choice;
+        var el = document.querySelector('input[name=choice][value="' + r.choice + '"]');
+        if (el) el.checked = true;
+        if (r.note) $('f-note').value = r.note;
+        notice.innerHTML = '你之前投过：<b>' + esc(lb) + '</b>（'
+          + esc(new Date(r.created_at).toLocaleString('zh-CN', {month:'numeric',day:'numeric',hour:'2-digit',minute:'2-digit'}))
+          + '）。已帮你选中，可直接改。';
+        notice.classList.add('show');
+      } else {
+        notice.classList.remove('show');
+      }
+    })
+    .catch(function(){ notice.classList.remove('show'); });
+}
+
+$('f-name').addEventListener('input', function(){
+  clearTimeout(checkTimer);
+  checkTimer = setTimeout(checkExisting, 450);
+});
+$('f-name').addEventListener('blur', checkExisting);
+$('f-dept').addEventListener('change', checkExisting);
+
+/* ---------- 提交 ---------- */
+var lastSubmit = 0;
+$('btn-submit').addEventListener('click', function(){
+  var btn = this;
+  var name = $('f-name').value.trim();
+  var dept = $('f-dept').value;
+  var picked = document.querySelector('input[name=choice]:checked');
+  var note = $('f-note').value.trim();
+
+  if (!CONFIGURED) { toast('页面还没配置数据库，请联系发起人'); return; }
+  if (!name)  { toast('请填写姓名'); $('f-name').focus(); return; }
+  if (!dept)  { toast('请选择部门 / 分组'); $('f-dept').focus(); return; }
+  if (!picked){ toast('请选择一个选项'); return; }
+
+  var now = Date.now();
+  if (now - lastSubmit < 3000) { toast('提交太频繁了，稍等几秒'); return; }
+  lastSubmit = now;
+
+  btn.disabled = true;
+  btn.textContent = '提交中…';
+
+  api(TABLE, {
+    method: 'POST',
+    headers: Object.assign({}, HEADERS, { 'Prefer': 'return=minimal' }),
+    body: JSON.stringify({ name: name, dept: dept, choice: picked.value, note: note })
+  }).then(function(){
+    toast('投票成功，已记录');
+    $('notice').classList.remove('show');
+    return refresh();
+  }).catch(function(err){
+    toast('提交失败：' + (err.message || '网络异常'));
+  }).then(function(){
+    btn.disabled = false;
+    btn.textContent = '提交投票';
+  });
+});
+
+/* ---------- 统计刷新 ---------- */
+var LABELS = { join:'参加', pending:'待定', skip:'不参加' };
+var ORDER  = ['join','pending','skip'];
+
+function render(stats, rows){
+  stats = stats || {};
+  var total = stats.total || 0;
+  var join  = stats.join  || 0;
+
+  $('s-total').textContent = total;
+  $('s-join').textContent  = join;
+  $('s-rate').textContent  = total ? Math.round(join / total * 100) + '%' : '–';
+
+  ORDER.forEach(function(k){
+    var n = stats[k] || 0;
+    var pct = total ? (n / total * 100) : 0;
+    $('n-' + k).innerHTML = n + '<span>人</span>';
+    $('p-' + k).style.width = pct.toFixed(1) + '%';
+  });
+
+  $('updated').textContent = '更新于 ' + new Date().toLocaleTimeString('zh-CN', {hour:'2-digit',minute:'2-digit',second:'2-digit'})
+    + ' · 数据每 20 秒自动刷新';
+
+  if (rows && rows.length) renderRoster(rows);
+}
+
+function renderRoster(rows){
+  var groups = {join:[], pending:[], skip:[]};
+  rows.forEach(function(r){ if (groups[r.choice]) groups[r.choice].push(r); });
+
+  var html = '';
+  ORDER.forEach(function(k){
+    var list = groups[k];
+    html += '<div class="group"><h3><span class="dot-mini" style="width:8px;height:8px;border-radius:50%;display:inline-block;background:'
+      + (k==='join' ? 'var(--join)' : k==='pending' ? 'var(--pending)' : 'var(--skip)') + '"></span>'
+      + LABELS[k] + ' <span class="cnt">' + list.length + ' 人</span></h3>';
+    if (!list.length) {
+      html += '<div class="empty">暂无</div>';
+    } else {
+      html += '<div class="pills">';
+      list.forEach(function(r){
+        var cls = k==='join' ? 'j' : k==='pending' ? 'p' : '';
+        html += '<span class="pill ' + cls + '"><i>' + esc(r.name) + '</i> · ' + esc(r.dept || '未填')
+             + (r.note ? '<small>' + esc(r.note) + '</small>' : '') + '</span>';
+      });
+      html += '</div>';
+    }
+    html += '</div>';
+  });
+  $('roster').innerHTML = html;
+}
+
+function refresh(){
+  if (!CONFIGURED) return Promise.resolve();
+  return api('rpc/vote_stats', {
+    method: 'POST',
+    headers: Object.assign({}, HEADERS, { 'Prefer': 'return=representation' }),
+    body: '{}'
+  }).then(function(rows){
+    var stats = { total: 0 };
+    ORDER.forEach(function(k){ stats[k] = 0; });
+    (rows || []).forEach(function(r){
+      stats[r.choice] = Number(r.cnt) || 0;
+      stats.total = Number(r.total) || 0;
+    });
+    return api(LATEST + '?select=name,dept,choice,note&order=created_at.desc')
+      .then(function(list){ render(stats, list); });
+  }).catch(function(err){
+    $('updated').textContent = '统计加载失败：' + (err.message || '请检查数据库配置与网络');
+  });
+}
+
+if (!CONFIGURED) {
+  $('setup').classList.add('show');
+  $('updated').textContent = '未连接数据库';
+} else {
+  refresh();
+  setInterval(refresh, REFRESH_MS);
+}
+</script>
+</body>
+</html>

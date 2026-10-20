@@ -33,9 +33,18 @@ var SUPABASE_ANON_KEY = 'eyJhbGci...';               // 换成你的 anon public
 
 ## 三、发布到公网
 
-### 方式 A：CloudStudio（本环境原生，一步到位）
+### 当前已发布地址
 
-直接让 WorkBuddy 重新执行部署即可（本次尝试时该服务暂时不可用，稍后重试即可）。
+**https://lnnujxxy.github.io/wanmi-run-vote/**
+
+已通过 GitHub Pages 发布，仓库在 <https://github.com/lnnujxxy/wanmi-run-vote>。
+后续改动只要 push 到 `main` 分支，约 1 分钟自动生效，不用重新配置。
+
+> 注意：GitHub Pages 在国内访问速度不稳定，打开慢的话建议改用下面的 Vercel 或 EdgeOne Pages。
+
+### 方式 A：CloudStudio（本环境原生）
+
+让 WorkBuddy 执行部署即可。本次发布时该服务后端故障（连续 7 次 `fetch failed`），因此改走了 GitHub Pages。
 
 ### 方式 B：Netlify Drop（不用注册，30 秒）
 
